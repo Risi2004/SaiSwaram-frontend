@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
+import { parseApiResponse } from '../utils/apiResponse';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
@@ -40,9 +41,9 @@ function ForgotPassword() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-      const data = await res.json();
+      const data = await parseApiResponse(res);
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to request OTP');
+        throw new Error(data?.message || 'Failed to request OTP');
       }
       setIsOtpStep(true);
       setInfo(data.message || 'If an account exists, a reset OTP has been sent to that email.');
@@ -64,9 +65,9 @@ function ForgotPassword() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-      const data = await res.json();
+      const data = await parseApiResponse(res);
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to resend OTP');
+        throw new Error(data?.message || 'Failed to resend OTP');
       }
       setInfo(data.message || 'If an account exists, a reset OTP has been sent to that email.');
       startCooldown(data.cooldownSeconds || 60);
@@ -100,9 +101,9 @@ function ForgotPassword() {
           newPassword,
         }),
       });
-      const data = await res.json();
+      const data = await parseApiResponse(res);
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to reset password');
+        throw new Error(data?.message || 'Failed to reset password');
       }
       setInfo(data.message || 'Password reset successful.');
       setTimeout(() => navigate('/login'), 1200);

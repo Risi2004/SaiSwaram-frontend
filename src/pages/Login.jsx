@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
+import { parseApiResponse } from '../utils/apiResponse';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
@@ -20,9 +21,9 @@ function Login() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-      const data = await res.json();
+      const data = await parseApiResponse(res);
       if (!res.ok) {
-        throw new Error(data.message || 'Login failed');
+        throw new Error(data?.message || 'Login failed');
       }
       localStorage.setItem('token', data.token);
       navigate('/dashboard');

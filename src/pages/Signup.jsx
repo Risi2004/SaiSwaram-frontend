@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
+import { parseApiResponse } from '../utils/apiResponse';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
@@ -46,9 +47,9 @@ function Signup() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-      const data = await res.json();
+      const data = await parseApiResponse(res);
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to request OTP');
+        throw new Error(data?.message || 'Failed to request OTP');
       }
       setIsOtpStep(true);
       setInfoMessage('OTP sent. Check your email and enter the code below.');
@@ -77,9 +78,9 @@ function Signup() {
           otp,
         }),
       });
-      const data = await res.json();
+      const data = await parseApiResponse(res);
       if (!res.ok) {
-        throw new Error(data.message || 'OTP verification failed');
+        throw new Error(data?.message || 'OTP verification failed');
       }
       localStorage.setItem('token', data.token);
       navigate('/dashboard');
@@ -100,9 +101,9 @@ function Signup() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: formData.email }),
       });
-      const data = await res.json();
+      const data = await parseApiResponse(res);
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to resend OTP');
+        throw new Error(data?.message || 'Failed to resend OTP');
       }
       setInfoMessage(data.message || 'OTP resent successfully.');
       if (data.cooldownSeconds) {
