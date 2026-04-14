@@ -79,13 +79,13 @@ define(['./workbox-6fc00345'], (function (workbox) { 'use strict';
    */
   workbox.precacheAndRoute([{
     "url": "index.html",
-    "revision": "0.4qvvs2g6hto"
+    "revision": "0.cufjd80pap8"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
     allowlist: [/^\/$/]
   }));
-  workbox.registerRoute(/^http:\/\/localhost:5000\/api\/.*/i, new workbox.NetworkFirst({
+  workbox.registerRoute(/^https?:\/\/(localhost:5000|.*\.onrender\.com)\/api\/.*/i, new workbox.NetworkFirst({
     "cacheName": "saiswaram-api-cache",
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 100,
