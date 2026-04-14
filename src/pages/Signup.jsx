@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import { parseApiResponse } from '../utils/apiResponse';
+import { clearAllOfflineUserData } from '../data/offlineRepository';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
@@ -82,6 +83,7 @@ function Signup() {
       if (!res.ok) {
         throw new Error(data?.message || 'OTP verification failed');
       }
+      await clearAllOfflineUserData();
       localStorage.setItem('token', data.token);
       navigate('/dashboard');
     } catch (err) {

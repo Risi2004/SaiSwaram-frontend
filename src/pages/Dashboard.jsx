@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import logo from '../assets/logo.png';
 import {
+  clearAllOfflineUserData,
   deleteBhajan,
   deleteSchedule,
   getAnalyticsSnapshot,
@@ -95,8 +96,13 @@ function Dashboard() {
     refreshAfterSync();
   }, [syncStatus.isSyncing, syncStatus.online]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.removeItem('token');
+    try {
+      await clearAllOfflineUserData();
+    } catch {
+      // Still navigate away if IndexedDB is unavailable
+    }
     navigate('/login');
   };
 

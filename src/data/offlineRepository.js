@@ -95,6 +95,10 @@ async function deleteItem(storeName, id) {
   return withStore(storeName, 'readwrite', (store) => store.delete(id));
 }
 
+async function clearObjectStore(storeName) {
+  await withStore(storeName, 'readwrite', (store) => store.clear());
+}
+
 async function setMeta(key, value) {
   return putItem('meta', { key, value });
 }
@@ -315,7 +319,13 @@ export async function syncNow() {
 
 async function refreshBhajans() {
   const bhajans = await authedFetch('/api/bhajans');
+  const existing = await getAll('bhajans');
+  const locals = existing.filter((b) => String(b._id).startsWith(LOCAL_PREFIX));
   await withStore('bhajans', 'readwrite', (store) => {
+    store.clear();
+    for (const b of locals) {
+      store.put(b);
+    }
     for (const bhajan of bhajans) {
       store.put({ ...bhajan, _sync: { pending: false } });
     }
@@ -324,7 +334,13 @@ async function refreshBhajans() {
 
 async function refreshSchedules() {
   const schedules = await authedFetch('/api/schedule');
+  const existing = await getAll('schedules');
+  const locals = existing.filter((s) => String(s._id).startsWith(LOCAL_PREFIX));
   await withStore('schedules', 'readwrite', (store) => {
+    store.clear();
+    for (const s of locals) {
+      store.put(s);
+    }
     for (const schedule of schedules) {
       store.put({ ...schedule, _sync: { pending: false } });
     }
@@ -366,6 +382,19 @@ export function subscribeSyncStatus(listener) {
   listeners.add(listener);
   listener({ ...STATUS });
   return () => listeners.delete(listener);
+}
+
+/** Clears IndexedDB caches so a different account never sees the previous user's data. */
+export async function clearAllOfflineUserData() {
+  await Promise.all([
+    clearObjectStore('bhajans'),
+    clearObjectStore('schedules'),
+    clearObjectStore('pendingMutations'),
+  ]);
+  await setMeta('idMap', {});
+  await setMeta('lastSyncAt', null);
+  await updatePendingCount();
+  emitStatus({ pendingCount: 0, lastSyncAt: null, lastError: null });
 }
 
 export async function getBhajans(options = {}) {
